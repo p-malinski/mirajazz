@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.1] - 2025-09-10
+
+### 🐛 Bug Fixes
+
+- Hardcode serial for protocol_version 1 devices, allow devices without serial
+
 ## [0.8.0] - 2025-08-30
 
 ### 🚜 Refactor
