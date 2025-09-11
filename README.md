@@ -14,6 +14,53 @@ This is a hardfork of [elgato-streamdeck](https://github.com/streamduck-org/elga
 
 The idea is to have a common lowlevel library serving as a backbone for device-specific [OpenDeck](https://github.com/nekename/OpenDeck) plugins
 
+## Protocol versions
+
+These versions are our own internal concept, and mostly used for telling the library which exact set of quirks to apply for specific protocol variations.
+
+Mirabox (the manufacturer behind these devices) has no plans to provide any specifics on protocol implementation, as stated by their staff member on official Discord, so we have to improvise and reverse engineer.
+
+### protocol_version = 0
+
+Do not use this directly. This is a fallback for devices with *very* old firmware and will be set internally if needed, use version 1
+
+- 512-bytes packets
+- Device is missing serial number (that's how we know when to fallback to pv 0)
+- Reported firmware version is `1.0.0.0`
+- No `ACK` and `OK` in input report
+- No support for both keypress states (aka long press, PTT)
+- Only seen on one rebranded variation of 293S
+
+Example devices: 293S rebranded as Soomfon
+
+### protocol_version = 1
+
+- 512-bytes packets
+- No support for both keypress states (aka long press, PTT)
+- Hardcoded serial of `355499441494`
+- Broken serial report on Windows, so we also hardcode it ourself, do not rely on serial reported in `HidDeviceInfo`, always use `serial_number` function of connected `Device`
+
+Example devices: Mirabox 293S (not 293SV3) with latest firmware, Ajazz AKP153 and regional variations
+
+### protocol_version = 2
+
+- 1024-bytes packets
+- No support for both keypress states (aka long press, PTT)
+- Unique serial numbers
+- Requires extra command to clear the screen (handled by the library)
+
+Example devices: Mirabox N3, Ajazz AKP03 (and variations, with PID starting with 1, not 3)
+
+### protocol_version = 3
+
+- 1024-bytes packets
+- Does support both keypress states (aka long press, PTT)
+- Unique serial numbers
+- Requires extra command to clear the screen (handled by the library)
+- Supports gifs
+
+Example devices: Mirabox N3 rev. 2 (PID 1003), Mirabox N4, Akp03 rev. 2 (PIDs starting with 3)
+
 ## Current limitations
 
 - Depends on tokio for wrapping synchronous image manipulation tasks
